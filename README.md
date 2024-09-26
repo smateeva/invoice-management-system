@@ -11,39 +11,48 @@ The Simple Invoice Management System is a web application built with Laravel tha
 
 ## Setup and Installation
 
-1. Clone the repository:
-   git clone https://github.com/your-username/invoice-management-system.git
+### 1. Clone the repository:
+<pre><code>
+    git clone https://github.com/your-username/invoice-management-system.git
+</code></pre>
+<pre><code>
    cd invoice-management-system
+    </code></pre>
    
-2. Install dependencies:
-   ``bash
+### 3. Install dependencies:
+   <pre><code>
    composer install
+    </code></pre>
    
-3. Create a <b>.env</b> file: Copy the <b>.env.example</b> file to <b>.env</b>:
-   ``bash
+### 4. Create a _**.env**_ file: Copy the _**.env.example**_ file to _**.env**_:
+   <pre><code>
    cp .env.example .env
+   </code></pre>
    
-4. Set up the database:
+### 5. Set up the database:
    - Open XAMPP Control Panel and start the Apache and MySQL services.
    - Open phpMyAdmin by http://localhost/phpmyadmin.
    - Create a new database (invoice-management-system).
-   - Update <b>.env</b>
-   ``bash
+   - Update _**.env**_
+   <pre><code>
     DB_CONNECTION=mysql
     DB_HOST=127.0.0.1
     DB_PORT=3306
     DB_DATABASE=invoice-management-system 
     DB_USERNAME=root                 
     DB_PASSWORD=
-
-5. Generate an application key:
-   ``bash
+    </code></pre>
+### 6. Generate an application key:
+   <pre><code>
    php artisan key:generate
+    </code></pre>
 
-6. Run migrations:
-   ``bash
+### 7. Run migrations:
+   <pre><code>
    php artisan migrate
+   </code></pre>
    
-7. Start the local development server:
-   ``bash
-   php artisan serve    
+### 9. Start the local development server:
+   <pre><code>
+   php artisan serve
+   </code></pre>
