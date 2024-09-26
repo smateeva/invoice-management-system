@@ -8,20 +8,29 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    {{-- Форма за създаване на фактура --}}
     <form action="{{ route('invoices.store') }}" method="POST" class="m-3">
-        @csrf
+        @csrf {{-- Включва токен за защита от CSRF атаки --}}
+        
+       
         <div class="form-group">
             <label for="invoice_number">Invoice Number</label>
             <input type="text" name="invoice_number" class="form-control" required>
         </div>
+        
+       
         <div class="form-group">
             <label for="date">Date</label>
             <input type="date" name="date" class="form-control" required>
         </div>
+        
+        
         <div class="form-group">
             <label for="customer_name">Customer Name</label>
             <input type="text" name="customer_name" class="form-control" required>
         </div>
+        
+        
         <div class="form-group">
             <label for="customer_email">Customer Email</label>
             <input type="email" name="customer_email" class="form-control" required>
@@ -29,6 +38,7 @@
 
         <h4>Line Items</h4>
         <div id="line-items-container">
+            {{-- Първи ред за детайли --}}
             <div class="line-item">
                 <div class="form-group">
                     <label for="description">Description</label>
@@ -44,14 +54,19 @@
                 </div>
             </div>
         </div>
+
+        {{-- Бутон за добавяне --}}
         <button type="button" id="add-line-item" class="btn btn-primary">Add Line Item</button>
+        
+        {{-- Бутон за изпращане на формата и създаване на фактура --}}
         <button type="submit" class="btn btn-success">Create Invoice</button>
     </form>
 </div>
 
 <script>
-    let lineItemCount = 1;
+    let lineItemCount = 1; 
 
+    // Добавя слушател за клик на бутона за добавяне на ред
     document.getElementById('add-line-item').addEventListener('click', function() {
         const lineItemsContainer = document.getElementById('line-items-container');
         const newLineItem = document.createElement('div');
@@ -70,8 +85,8 @@
                 <input type="number" name="line_items[${lineItemCount}][unit_price]" class="form-control" required step="0.01">
             </div>
         `;
-        lineItemsContainer.appendChild(newLineItem);
-        lineItemCount++;
+        lineItemsContainer.appendChild(newLineItem); // Добавя новия ред в контейнера
+        lineItemCount++; // Увеличава броя на редовете
     });
 </script>
 @endsection

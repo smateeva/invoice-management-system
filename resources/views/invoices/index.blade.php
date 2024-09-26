@@ -5,9 +5,10 @@
     <h2>Invoices</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">{{ session('success') }}</div> 
     @endif
 
+    <!-- Форма за търсене -->
     <form method="GET" action="{{ route('invoices.index') }}" class="mb-3">
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Search by customer name or invoice number" value="{{ request()->input('search') }}">
@@ -15,8 +16,10 @@
         </div>
     </form>
 
+    <!-- Бутон за създаване на нова фактура -->
     <a href="{{ route('invoices.create') }}" class="btn btn-primary mb-3">Create Invoice</a>
 
+    <!-- Таблица с фактури -->
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
@@ -38,20 +41,21 @@
                         <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-info btn-sm">View</a>
                         <a href="{{ route('invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            @csrf 
+                            @method('DELETE') 
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this invoice?');">Delete</button>
                         </form>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center">No invoices found.</td>
+                    <td colspan="5" class="text-center">No invoices found.</td> <!-- Съобщение, ако няма фактури -->
                 </tr>
             @endforelse
         </tbody>
     </table>
 
+    <!-- Страници -->
     {{ $invoices->links() }}
 </div>
 @endsection
