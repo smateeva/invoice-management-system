@@ -19,17 +19,17 @@ The Simple Invoice Management System is a web application built with Laravel tha
    cd invoice-management-system
     </code></pre>
    
-### 3. Install dependencies:
+### 2. Install dependencies:
    <pre><code>
    composer install
     </code></pre>
    
-### 4. Create a _**.env**_ file: Copy the _**.env.example**_ file to _**.env**_:
+### 3. Create a _**.env**_ file: Copy the _**.env.example**_ file to _**.env**_:
    <pre><code>
    cp .env.example .env
    </code></pre>
    
-### 5. Set up the database:
+### 4. Set up the database:
    - Open XAMPP Control Panel and start the Apache and MySQL services.
    - Open phpMyAdmin by http://localhost/phpmyadmin.
    - Create a new database (invoice-management-system).
@@ -42,17 +42,17 @@ The Simple Invoice Management System is a web application built with Laravel tha
     DB_USERNAME=root                 
     DB_PASSWORD=
     </code></pre>
-### 6. Generate an application key:
+### 5. Generate an application key:
    <pre><code>
    php artisan key:generate
     </code></pre>
 
-### 7. Run migrations:
+### 6. Run migrations:
    <pre><code>
    php artisan migrate
    </code></pre>
    
-### 9. Start the local development server:
+### 7. Start the local development server:
    <pre><code>
    php artisan serve
    </code></pre>
