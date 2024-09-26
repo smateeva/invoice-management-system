@@ -1,23 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Детайли</h1>
+<div class="card p-5 shadow p-3 mb-5 bg-body-tertiary rounded">
+<div class="row">
+    <div class="col-md-12 ">
+        <h1>Invoice Details</h1>
 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Номер на фактура: {{ $invoice->invoice_number }}</h5>
-            <p class="card-text"><strong>Дата:</strong> {{ $invoice->date }}</p>
-            <p class="card-text"><strong>Име на клиент:</strong> {{ $invoice->customer_name }}</p>
-            <p class="card-text"><strong>Имейл на клиент:</strong> {{ $invoice->customer_email }}</p>
-            <p class="card-text"><strong>Сума:</strong> {{ $invoice->total_amount }}</p>
-        </div>
+        <p><strong>Invoice Number:</strong> {{ $invoice->invoice_number }}</p>
+        <p><strong>Date:</strong> {{ $invoice->date }}</p>
+        <p><strong>Customer Name:</strong> {{ $invoice->customer_name }}</p>
+        <p><strong>Customer Email:</strong> {{ $invoice->customer_email }}</p>
+        <p><strong>Total Amount:</strong> ${{ number_format($invoice->total_amount, 2) }}</p>
+
+        <h4>Line Items</h4>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if($invoice->lineItems->isEmpty())
+                    <tr>
+                        <td colspan="4" class="text-center">No line items found for this invoice.</td>
+                    </tr>
+                @else
+                    @foreach ($invoice->lineItems as $lineItem)
+                        <tr>
+                            <td>{{ $lineItem->description }}</td>
+                            <td>{{ $lineItem->quantity }}</td>
+                            <td>${{ number_format($lineItem->unit_price, 2) }}</td>
+                            <td>${{ number_format($lineItem->quantity * $lineItem->unit_price, 2) }}</td>
+                        </tr>
+                    @endforeach
+                @endif
+            </tbody>
+        </table>
+
+        <a href="{{ route('invoices.index') }}" class="btn btn-primary">Back to Invoices</a>
     </div>
-
-    <a href="{{ route('invoices.edit', $invoice->id) }}" class="btn btn-warning mt-3">Редактиране</a>
-    <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger mt-3">Изтриване</button>
-    </form>
-    <a href="{{ route('invoices.index') }}" class="btn btn-secondary mt-3">Назад</a>
+</div>
+</div>
 @endsection

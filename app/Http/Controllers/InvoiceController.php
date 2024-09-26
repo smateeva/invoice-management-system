@@ -1,111 +1,114 @@
 <?php
-
 namespace App\Http\Controllers;
+
 use App\Models\Invoice;
+use App\Models\LineItem;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::where('user_id', auth()->id())->get();
-
-        return view('invoices.index', compact('invoices'));
+        $search = $request->input('search');
+    
+        $invoices = Invoice::where('user_id', auth()->id()) 
+            ->when($search, function ($query) use ($search) {
+                $query->where('customer_name', 'like', "%{$search}%")
+                      ->orWhere('invoice_number', 'like', "%{$search}%");
+            })
+            ->paginate(10); 
+    
+        return view('invoices.index', compact('invoices', 'search'));
     }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+   public function create()
     {
         return view('invoices.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created invoice in storage.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'invoice_number' => 'required|string|max:255',
+            'invoice_number' => 'required|unique:invoices',
             'date' => 'required|date',
             'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email|max:255',
-            'total_amount' => 'required|numeric|min:0',
+            'customer_email' => 'required|email',
+            'line_items.*.description' => 'required|string',
+            'line_items.*.quantity' => 'required|integer|min:1',
+            'line_items.*.unit_price' => 'required|numeric|min:0',
         ]);
-
-        Invoice::create([
-            'invoice_number' => $request->invoice_number,
-            'date' => $request->date,
-            'customer_name' => $request->customer_name,
-            'customer_email' => $request->customer_email,
-            'total_amount' => $request->total_amount,
-            'user_id' => auth()->id(), 
-        ]);
-
-        return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
-
+    
+        $totalAmount = 0;
+        foreach ($request->input('line_items', []) as $lineItem) {
+            $totalAmount += $lineItem['quantity'] * $lineItem['unit_price'];
+        }
+    
+        $invoice = new Invoice();
+        $invoice->invoice_number = $request->input('invoice_number');
+        $invoice->date = $request->input('date');
+        $invoice->customer_name = $request->input('customer_name');
+        $invoice->customer_email = $request->input('customer_email');
+        $invoice->total_amount = $totalAmount;  
+        $invoice->user_id = auth()->id();  
+    
+        $invoice->save();
+    
+        foreach ($request->input('line_items', []) as $lineItemData) {
+            $lineItem = new LineItem();
+            $lineItem->description = $lineItemData['description'];
+            $lineItem->quantity = $lineItemData['quantity'];
+            $lineItem->unit_price = $lineItemData['unit_price'];
+            $lineItem->invoice_id = $invoice->id; 
+    
+            $lineItem->save();
+        }
+    
+        return redirect()->route('invoices.index')->with('success', 'Invoice created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Invoice $invoice)
     {
-        $invoice = Invoice::findOrFail($id);
-
         return view('invoices.show', compact('invoice'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Invoice $invoice)
     {
-        $invoice = Invoice::findOrFail($id);
-
         return view('invoices.edit', compact('invoice'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Invoice $invoice)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'invoice_number' => 'required|string|max:255',
             'date' => 'required|date',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
-            'total_amount' => 'required|numeric|min:0',
+            'line_items' => 'required|array',
+            'line_items.*.description' => 'required|string|max:255',
+            'line_items.*.quantity' => 'required|integer|min:1',
+            'line_items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        $invoice = Invoice::findOrFail($id);
+        $totalAmount = collect($request->line_items)->sum(function ($lineItem) {
+            return $lineItem['quantity'] * $lineItem['unit_price'];
+        });
 
-        $invoice->update([
-            'invoice_number' => $request->invoice_number,
-            'date' => $request->date,
-            'customer_name' => $request->customer_name,
-            'customer_email' => $request->customer_email,
-            'total_amount' => $request->total_amount,
-        ]);
+        $invoice->update(array_merge($validatedData, ['total_amount' => $totalAmount]));
 
-        return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
+        $invoice->lineItems()->delete();
+        foreach ($request->line_items as $lineItemData) {
+            $lineItemData['invoice_id'] = $invoice->id; 
+            LineItem::create($lineItemData);
+        }
+
+        return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Invoice $invoice)
     {
-        $invoice = Invoice::findOrFail($id);
-
         $invoice->delete();
-
-        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
+        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully!');
     }
 }

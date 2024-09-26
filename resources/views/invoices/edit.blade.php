@@ -1,32 +1,80 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Редактирай фактура</h1>
+<div class="container">
+    <h2>Edit Invoice #{{ $invoice->invoice_number }}</h2>
 
-    <form action="{{ route('invoices.update', $invoice->id) }}" method="POST">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <form action="{{ route('invoices.update', $invoice->id) }}" method="POST" class="m-3">
         @csrf
         @method('PUT')
         <div class="form-group">
-            <label for="invoice_number">Номер на фактура</label>
-            <input type="text" class="form-control" name="invoice_number" value="{{ $invoice->invoice_number }}" required>
+            <label for="invoice_number">Invoice Number</label>
+            <input type="text" name="invoice_number" class="form-control" value="{{ $invoice->invoice_number }}" required>
         </div>
         <div class="form-group">
-            <label for="date">Дата</label>
-            <input type="date" class="form-control" name="date" value="{{ $invoice->date }}" required>
+            <label for="date">Date</label>
+            <input type="date" name="date" class="form-control" value="{{ $invoice->date }}" required>
         </div>
         <div class="form-group">
-            <label for="customer_name">Име на клиент</label>
-            <input type="text" class="form-control" name="customer_name" value="{{ $invoice->customer_name }}" required>
+            <label for="customer_name">Customer Name</label>
+            <input type="text" name="customer_name" class="form-control" value="{{ $invoice->customer_name }}" required>
         </div>
         <div class="form-group">
-            <label for="customer_email">Имейл на клиент</label>
-            <input type="email" class="form-control" name="customer_email" value="{{ $invoice->customer_email }}" required>
+            <label for="customer_email">Customer Email</label>
+            <input type="email" name="customer_email" class="form-control" value="{{ $invoice->customer_email }}" required>
         </div>
-        <div class="form-group">
-            <label for="total_amount">Сума</label>
-            <input type="number" class="form-control" name="total_amount" value="{{ $invoice->total_amount }}" step="0.01" required>
+
+        <h4>Line Items</h4>
+        <div id="line-items-container">
+            @foreach ($invoice->lineItems as $index => $lineItem)
+                <div class="line-item">
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" name="line_items[{{ $index }}][description]" class="form-control" value="{{ $lineItem->description }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" name="line_items[{{ $index }}][quantity]" class="form-control" value="{{ $lineItem->quantity }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit_price">Unit Price</label>
+                        <input type="number" name="line_items[{{ $index }}][unit_price]" class="form-control" value="{{ $lineItem->unit_price }}" required step="0.01">
+                    </div>
+                </div>
+            @endforeach
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Редактирай</button>
-        <a href="{{ route('invoices.index') }}" class="btn btn-danger mt-3">Откажи</a>
+        <button type="button" id="add-line-item" class="btn btn-primary">Add Line Item</button>
+        <button type="submit" class="btn btn-success">Update Invoice</button>
     </form>
+</div>
+
+<script>
+    let lineItemCount = {{ $invoice->lineItems->count() }};
+
+    document.getElementById('add-line-item').addEventListener('click', function() {
+        const lineItemsContainer = document.getElementById('line-items-container');
+        const newLineItem = document.createElement('div');
+        newLineItem.classList.add('line-item');
+        newLineItem.innerHTML = `
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" name="line_items[${lineItemCount}][description]" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" name="line_items[${lineItemCount}][quantity]" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="unit_price">Unit Price</label>
+                <input type="number" name="line_items[${lineItemCount}][unit_price]" class="form-control" required step="0.01">
+            </div>
+        `;
+        lineItemsContainer.appendChild(newLineItem);
+        lineItemCount++;
+    });
+</script>
 @endsection

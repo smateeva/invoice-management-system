@@ -18,8 +18,10 @@ return new class extends Migration
             $table->string('customer_name');
             $table->string('customer_email');
             $table->decimal('total_amount', 10, 2);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
+        
     }
 
     /**
