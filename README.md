@@ -51,8 +51,15 @@ The Simple Invoice Management System is a web application built with Laravel tha
    <pre><code>
    php artisan migrate
    </code></pre>
+
+### 7. Install JavaScript dependencies in the project directory:
+<pre><code>npm install</code></pre>
+
+### 8. Build the resources with Vite:
+<pre><code>npm run build
+</code></pre>
    
-### 7. Start the local development server:
+### 9. Start the local development server:
    <pre><code>
    php artisan serve
    </code></pre>
